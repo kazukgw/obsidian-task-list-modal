@@ -91,10 +91,16 @@ function getTaskContextRecursive(dvTask: {}): TaskContext[] {
 	});
 }
 
+function getTaskContextTextRecursive(dvTask: {}): string {
+	return dvTask.text + " " + dvTask.children.reduce((acc, cur) => {
+		if(cur.children.length > 0) {
+			return acc + " " + getTaskContextTextRecursive(cur);
+		}
+		return acc + " " + cur.text;
+	}, "");
+}
+
 function dvTaskToItem(dvTask: {}): Task {
-	if(dvTask.children.length > 0) {
-		console.log(dvTask);
-	}
 	return {
 		text: dvTask.text,
 		path: dvTask.path,
@@ -105,7 +111,7 @@ function dvTaskToItem(dvTask: {}): Task {
 		context: getTaskContextRecursive(dvTask),
 		fuzzyMatchTarget: `${dvTask.status}: ${dvTask.tags.join(" ")} ${
 			dvTask.text
-		} ${dvTask.path} ${dvTask.children.map((c) => c.text).join(" ")}`,
+		} ${dvTask.path} ${getTaskContextTextRecursive(dvTask)}`,
 	};
 }
 
@@ -246,6 +252,7 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 		taskTextSpan.style.fontSize = "0.8em";
 
 		if (item.item.context != null && item.item.context.length > 0) {
+			console.log(item.item);
 			const taskContext = div.createEl("div");
 			taskContext.style.marginLeft = "2em";
 			taskContext.style.color = "grey";
@@ -260,7 +267,6 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 					});
 				}
 			}
-			console.log(item.item.context);
 			item.item.context.forEach((c) => {
 				contextToLine(c);
 			});
