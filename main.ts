@@ -63,6 +63,20 @@ class Task {
 }
 
 class TaskListModal extends FuzzySuggestModal<Task> {
+
+	constructor(app: App) {
+		super(app);
+		const titleEl = this.modalEl.createDiv({text: "Task List Modal"});
+		this.modalEl.insertBefore(titleEl, this.modalEl.firstChild);
+		titleEl.style.paddingLeft = "0.8em";
+		titleEl.style.paddingTop = "0.2em";
+		titleEl.style.color = "grey";
+		titleEl.style.fontSize = "0.8em";
+		
+		this.inputEl.style.paddingTop = "0.5em";
+		this.inputEl.style.paddingBottom = "0.5em";
+	}
+
 	getItems(): Task[] {
 		const dv = DataviewAPI;
 		const files = dv
@@ -104,8 +118,9 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 
 	onChooseItem(item: Task, evt: MouseEvent | KeyboardEvent): void {
 		new Notice(`You selected: ${item.text}`);
+		console.log(item);
+
 		app.workspace.openLinkText("", item.path).then(() => {
-			console.log(item);
 			app.workspace.activeEditor.editor.setCursor(
 				item.position.start.line
 			);
