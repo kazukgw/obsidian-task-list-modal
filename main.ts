@@ -1,3 +1,4 @@
+import { get } from "http";
 import {
 	App,
 	Editor,
@@ -72,16 +73,28 @@ export class MySettingTab extends PluginSettingTab {
 	}
 }
 
-function getTaskContextRecursive(dvTask: {}): any {
+class TaskContext {
+	text: string;
+	children: TaskContext[];
+}
+
+function getTaskContextRecursive(dvTask: {}): TaskContext[] {
 	return dvTask.children.map((c) => {
-		if (c.children.length > 0) {
-			return getTaskContextRecursive(c);
-		}
-		return c.text;
+		const ctx = new TaskContext();
+		const status = (c.status != null && c.status.length > 0) ?  `[${c.status}] ` : "";
+		ctx.text = `${c.symbol} ${status}${c.text}`;
+		ctx.children = [];
+		if(c.children.length > 0) {
+			ctx.children = getTaskContextRecursive(c);
+		}	
+		return ctx;
 	});
 }
 
 function dvTaskToItem(dvTask: {}): Task {
+	if(dvTask.children.length > 0) {
+		console.log(dvTask);
+	}
 	return {
 		text: dvTask.text,
 		path: dvTask.path,
@@ -162,7 +175,7 @@ class Task {
 	status: string;
 	tags: string[];
 	position: {};
-	context: string[];
+	context: TaskContext[];
 	fuzzyMatchTarget: string;
 }
 
@@ -237,17 +250,17 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 			taskContext.style.marginLeft = "2em";
 			taskContext.style.color = "grey";
 			taskContext.style.fontSize = "0.6em";
-			function contextToLine(ctx: any, level: number = 0) {
-				if (Array.isArray(ctx)) {
-					ctx.forEach((c) => {
+			function contextToLine(ctx: TaskContext, level: number = 0) {
+				const indentText = "  ".repeat(level);
+				taskContext.createSpan({ text: indentText + ctx.text });
+				taskContext.createEl("br");
+				if (ctx.children.length > 0) {
+					ctx.children.forEach((c) => {
 						contextToLine(c, level + 1);
 					});
-				} else {
-					const indentText = "  ".repeat(level);
-					taskContext.createSpan({ text: indentText + ctx });
-					taskContext.createEl("br");
 				}
 			}
+			console.log(item.item.context);
 			item.item.context.forEach((c) => {
 				contextToLine(c);
 			});
