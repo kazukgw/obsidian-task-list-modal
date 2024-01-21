@@ -1,11 +1,7 @@
-import { get } from "http";
 import {
 	App,
-	Editor,
-	MarkdownView,
-	Modal,
-	MarkdownRenderer,
 	FuzzySuggestModal,
+	FuzzyMatch,
 	Notice,
 	Plugin,
 	PluginSettingTab,
@@ -78,8 +74,8 @@ class TaskContext {
 	children: TaskContext[];
 }
 
-function getTaskContextRecursive(dvTask: {}): TaskContext[] {
-	return dvTask.children.map((c) => {
+function getTaskContextRecursive(dvTask: any): TaskContext[] {
+	return dvTask.children.map((c: any) => {
 		const ctx = new TaskContext();
 		const status = (c.status != null && c.status.length > 0) ?  `[${c.status}] ` : "";
 		ctx.text = `${c.symbol} ${status}${c.text}`;
@@ -91,8 +87,8 @@ function getTaskContextRecursive(dvTask: {}): TaskContext[] {
 	});
 }
 
-function getTaskContextTextRecursive(dvTask: {}): string {
-	return dvTask.text + " " + dvTask.children.reduce((acc, cur) => {
+function getTaskContextTextRecursive(dvTask: any): string {
+	return dvTask.text + " " + dvTask.children.reduce((acc: string, cur: any) => {
 		if(cur.children.length > 0) {
 			return acc + " " + getTaskContextTextRecursive(cur);
 		}
@@ -100,7 +96,7 @@ function getTaskContextTextRecursive(dvTask: {}): string {
 	}, "");
 }
 
-function dvTaskToItem(dvTask: {}): Task {
+function dvTaskToItem(dvTask: any): Task {
 	return {
 		text: dvTask.text,
 		path: dvTask.path,
@@ -117,12 +113,12 @@ function dvTaskToItem(dvTask: {}): Task {
 
 function getBacklogList(targetFolder: string): Task[] {
 	const dv = DataviewAPI;
-	const files = dv.pages(`"${targetFolder}"`).sort((p) => p.file.ctime, "desc").file;
+	const files = dv.pages(`"${targetFolder}"`).sort((p:any) => p.file.ctime, "desc").file;
 	return files.tasks.values
-		.filter((t) => {
+		.filter((t: any) => {
 			return t.status === ">";
 		})
-		.sort((a, b) => {
+		.sort((a: any, b: any) => {
 			if (a.tags.includes("#p0") || a.tags.includes("#P0")) return -1;
 			if (b.tags.includes("#p0") || b.tags.includes("#P0")) return 1;
 
@@ -145,12 +141,12 @@ function getBacklogList(targetFolder: string): Task[] {
 
 function getTaskList(targetFolder: string): Task[] {
 	const dv = DataviewAPI;
-	const files = dv.pages(`"${targetFolder}"`).sort((p) => p.file.ctime, "desc").file;
+	const files = dv.pages(`"${targetFolder}"`).sort((p: any) => p.file.ctime, "desc").file;
 	return files.tasks.values
-		.filter((t) => {
+		.filter((t: any) => {
 			return t.status === " " || t.status === "/" || t.status === "<";
 		})
-		.sort((a, b) => {
+		.sort((a: any, b: any) => {
 			if (a.status === "/") return -1;
 			if (b.status === "/") return 1;
 
@@ -180,7 +176,7 @@ class Task {
 	checked: boolean;
 	status: string;
 	tags: string[];
-	position: {};
+	position: any;
 	context: TaskContext[];
 	fuzzyMatchTarget: string;
 }
@@ -212,6 +208,7 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 		if (this.mode === "task") {
 			return getTaskList(this.targetFolder);
 		}
+		return getTaskList(this.targetFolder);
 	}
 
 	getItemText(task: Task): string {
@@ -221,11 +218,11 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 	onChooseItem(task: Task, evt: MouseEvent | KeyboardEvent): void {
 		new Notice(`You selected: ${task.text}`);
 
-		app.workspace.openLinkText("", task.path).then(() => {
-			app.workspace.activeEditor.editor.setCursor(
+		app.workspace.openLinkText("", task.path, true).then(() => {
+			app.workspace.activeEditor?.editor?.setCursor(
 				task.position.start.line
 			);
-			app.workspace.activeEditor.editor.scrollIntoView(
+			app.workspace.activeEditor?.editor?.scrollIntoView(
 				{
 					from: { line: task.position.start.line, ch: 0 },
 					to: { line: task.position.end.line, ch: 1 },
