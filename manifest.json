@@ -1,11 +1,10 @@
 {
 	"id": "obsidian-task-list-modal",
 	"name": "Task List Modal",
-	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
+	"version": "1.0.1",
+	"minAppVersion": "1.2.0",
 	"description": "Task List Modal",
 	"author": "kazukgw",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"authorUrl": "https://github.com/kazukgw",
+	"isDesktopOnly": true
 }
