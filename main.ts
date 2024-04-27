@@ -214,7 +214,7 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 		} else {
 			items = getTaskList(this.targetFolder);
 		}
-		this.titleEl.textContent += `  (${items.length+1} tasks)`
+		this.titleEl.textContent = `Task List Modal  (${items.length+1} tasks)`;
 		return items;
 
 	}
