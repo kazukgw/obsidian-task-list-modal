@@ -182,6 +182,8 @@ class Task {
 }
 
 class TaskListModal extends FuzzySuggestModal<Task> {
+	readonly limit: number = 200;
+
 	constructor(app: App, private mode: "backlog" | "task" = "task", private targetFolder: string) {
 		super(app);
 		const titleEl = this.modalEl.createDiv();
@@ -249,7 +251,6 @@ class TaskListModal extends FuzzySuggestModal<Task> {
 		taskTextSpan.style.fontSize = "0.8em";
 
 		if (item.item.context != null && item.item.context.length > 0) {
-			console.log(item.item);
 			const taskContext = div.createEl("div");
 			taskContext.style.marginLeft = "2em";
 			taskContext.style.color = "grey";
