@@ -184,33 +184,39 @@ class Task {
 class TaskListModal extends FuzzySuggestModal<Task> {
 	readonly limit: number = 200;
 
+	titleEl: HTMLElement;
+
 	constructor(app: App, private mode: "backlog" | "task" = "task", private targetFolder: string) {
 		super(app);
-		const titleEl = this.modalEl.createDiv();
+		this.titleEl = this.modalEl.createDiv();
 		if (mode === "backlog") {
-			titleEl.textContent = "Backlog List Modal";
+			this.titleEl.textContent = "Backlog List Modal";
 		}
 		if (mode === "task") {
-			titleEl.textContent = "Task List Modal";
+			this.titleEl.textContent = "Task List Modal";
 		}
-		this.modalEl.insertBefore(titleEl, this.modalEl.firstChild);
-		titleEl.style.paddingLeft = "0.8em";
-		titleEl.style.paddingTop = "0.2em";
-		titleEl.style.color = "grey";
-		titleEl.style.fontSize = "0.8em";
+		this.modalEl.insertBefore(this.titleEl, this.modalEl.firstChild);
+		this.titleEl.style.paddingLeft = "0.8em";
+		this.titleEl.style.paddingTop = "0.2em";
+		this.titleEl.style.color = "grey";
+		this.titleEl.style.fontSize = "0.8em";
 
 		this.inputEl.style.paddingTop = "0.5em";
 		this.inputEl.style.paddingBottom = "0.5em";
 	}
 
 	getItems(): Task[] {
+		let items: Task[];
 		if (this.mode === "backlog") {
-			return getBacklogList(this.targetFolder);
+			items = getBacklogList(this.targetFolder);
+		} else if (this.mode === "task") {
+			items = getTaskList(this.targetFolder);
+		} else {
+			items = getTaskList(this.targetFolder);
 		}
-		if (this.mode === "task") {
-			return getTaskList(this.targetFolder);
-		}
-		return getTaskList(this.targetFolder);
+		this.titleEl.textContent += `  (${items.length+1} tasks)`
+		return items;
+
 	}
 
 	getItemText(task: Task): string {
